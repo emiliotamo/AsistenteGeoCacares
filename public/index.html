@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Asistente Virtual Farmacias Caceres</title>
+  <style>
+    /* Variables de color para mantener consistencia */
+    :root {
+      --navy-blue: #001f3f;       
+      --navy-blue-hover: #002a57;  
+      --background-color: #fafafa;
+      --border-color: #ddd;
+      --text-color: #333;
+      --button-text-color: #fff;
+    }
+
+   
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      margin: 0 0 60px 0; 
+    }
+
+    
+    header {
+      background-color: var(--navy-blue);
+      color: #fff;
+      text-align: center;
+      padding: 1rem 0;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; /* Cambia por la fuente que prefieras */
+    }
+    header h1 {
+      font-size: 1.2rem;
+      font-weight: normal;
+    }
+
+    /* Contenedor del chat */
+    #chatContainer {
+      max-width: 600px;
+      width: 100%;
+      margin: 20px auto;
+      padding: 0 20px;
+    }
+
+    /* Log del chat */
+    #chatLog {
+      background-color: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      padding: 1rem;
+      height: 400px; /* Ajustar según se necesite */
+      overflow-y: auto;
+      margin-bottom: 1rem;
+    }
+
+    /* Mensajes */
+    .message {
+      margin-bottom: 0.6rem;
+      padding: 0.8rem;
+      border-radius: 4px;
+    }
+    .user {
+      background-color: #ebebeb;
+      text-align: right;
+    }
+    .assistant {
+      background-color: #f5f5f5;
+      text-align: left;
+    }
+
+    /* Input y botones */
+    #userInput {
+      width: 70%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      outline: none;
+      margin-right: 0.5rem;
+    }
+    #sendButton,
+    #sendThreadAndRunButton {
+      background-color: var(--navy-blue);
+      color: var(--button-text-color);
+      border: none;
+      border-radius: 4px;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    #sendButton:hover,
+    #sendThreadAndRunButton:hover {
+      background-color: var(--navy-blue-hover);
+    }
+
+    /* FOOTER fijo en la parte inferior con estilo y tipografía */
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: var(--navy-blue);
+      color: #fff;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      padding: 0.8rem 0;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    footer p {
+      font-size: 0.9rem;
+    }
+
+    /* Estilos para las listas en los mensajes del asistente */
+.assistant ol {
+  padding-left: 20px;
+}
+
+.assistant li {
+  margin-bottom: 10px;
+}
+
+/* Mejorar la apariencia de los enlaces si los hay */
+.assistant a {
+  color: var(--navy-blue);
+  text-decoration: none;
+}
+
+.assistant a:hover {
+  text-decoration: underline;
+}
+  </style>
+  <!-- Incluir Marked.js para convertir Markdown a HTML -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- Incluir DOMPurify para sanitizar el HTML -->
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
+
+</head>
+<body>
+  <header>
+    <h1>Asistente Virtual Farmacias Caceres</h1>
+  </header>
+
+  <div id="chatContainer">
+    <div id="chatLog"></div>
+    <div>
+      <!-- Input de texto para la ciudad -->
+      <input type="text" id="userInput" placeholder="Escribe la ciudad..." />
+      <!-- Botón para enviar -->
+      <button id="sendButton">Enviar</button>
+    </div>
+  </div>
+
+  <script src="./script.js"></script>
+  <footer>
+    <p>© 2025 - Todos los derechos reservados</p>
+  </footer>
+</body>
+</html>

@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+  let threadId = null; // Variable para almacenar threadId entre mensajes
   const userInput = document.getElementById('userInput');
   const sendButton = document.getElementById('sendButton');
   const chatLog = document.getElementById('chatLog');
@@ -28,23 +29,29 @@ document.addEventListener('DOMContentLoaded', () => {
     addMessageToChat(message, 'user');
     userInput.value = '';
 
-    // Envía el mensaje al servidor
+    // Envía el mensaje al servidor, pasando el threadId si existe
     fetch('/api/createThreadAndRun', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message })
+      body: JSON.stringify({ message, threadId }),
     })
-      .then(res => {
+      .then((res) => {
         if (!res.ok) {
           throw new Error(`HTTP error: ${res.status}`);
         }
         return res.json();
       })
-      .then(data => {
-        // data.assistant es un string final con la respuesta del asistente en Markdown
+      .then((data) => {
+        // Verificar que `threadId` se actualiza correctamente
+        if (data.threadId) {
+          threadId = data.threadId;
+          console.log('Nuevo threadId:', threadId); // Debug
+        }
+      
+        // Muestra la respuesta del asistente
         addMessageToChat(data.assistant, 'assistant');
       })
-      .catch(err => {
+      .catch((err) => {
         console.error('Error al enviar mensaje:', err);
         addMessageToChat('Error interno. Intenta de nuevo.', 'assistant');
       });

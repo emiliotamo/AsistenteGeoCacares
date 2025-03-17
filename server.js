@@ -6,7 +6,6 @@ const axios = require('axios');
 /**
  * Clase ApiService:
  * Encapsula las llamadas a la API municipal
- * (CreateThreadAndRun, RetrieveRun, ListMesage, SubmitToolOutputs).
  */
 class ApiService {
   constructor(apiKey) {
@@ -22,6 +21,14 @@ class ApiService {
   async createThreadAndRun(payload) {
     const response = await this.axiosInstance.post(
       '/api/AssistantOpenAiV2/v2/CreateThreadAndRun',
+      payload
+    );
+    return response.data;
+  }
+
+  async createRun(threadId, payload) {
+    const response = await this.axiosInstance.post(
+      `/api/AssistantOpenAiV2/v2/CreateRun/${threadId}`,
       payload
     );
     return response.data;
@@ -51,129 +58,151 @@ class ApiService {
 }
 
 /**
- * Lógica principal:
- * 1) CreateThreadAndRun con el mensaje del usuario
- * 2) Polling con retrieveRun hasta "completed"/"failed"/"cancelled"
- * 3) Si la IA pide la herramienta "Farmacias", llamamos a GeoServer
- * 4) Enviamos el resultado con submitToolOutputs
- * 5) Al finalizar, listMessages para obtener el mensaje final del asistente
+ * runAssistantFlow: flujo principal del asistente
  */
-async function runAssistantFlow(apiService, userMessage) {
-  // 1) Llama a CreateThreadAndRun
-  let runResp = await apiService.createThreadAndRun({
-    assistant_id: 'asst_LaCKtLYCXbB6lHslfYtS9cES', 
-    thread: {
-      messages: [
+async function runAssistantFlow(apiService, userMessage, existingThreadId = null) {
+  let runResp;
+
+  if (existingThreadId) {
+    console.log(`Usando threadId existente: ${existingThreadId}`);
+
+    // Si ya existe un threadId, usa CreateRun
+    runResp = await apiService.createRun(existingThreadId, {
+      assistant_id: 'asst_LaCKtLYCXbB6lHslfYtS9cES',
+      additional_messages: [
         {
           role: 'user',
           content: userMessage,
           attachments: [],
-          metadata: {}
-        }
+        },
       ],
-      metadata: {}
-    }
-  });
+    });
+  } else {
+    console.log('Creando un nuevo thread');
 
-  // Obtenemos threadId y runId
-  const threadId = runResp.thread_id || runResp.thread?.id;
-  let runId = runResp.id;
-  if (!threadId || !runId) {
-    throw new Error(
-      `No se obtuvo threadId o runId. Respuesta: ${JSON.stringify(runResp, null, 2)}`
-    );
+    // Si no existe threadId, crea uno nuevo
+    runResp = await apiService.createThreadAndRun({
+      assistant_id: 'asst_LaCKtLYCXbB6lHslfYtS9cES',
+      thread: {
+        messages: [
+          {
+            role: 'user',
+            content: userMessage,
+            attachments: [],
+          },
+        ],
+      },
+    });
   }
 
-  // 2) Polling: mientras no esté "completed"...
+  // Asegurar que obtenemos los IDs correctos
+  const threadId = existingThreadId || runResp.thread_id || runResp.thread?.id;
+  let runId = runResp.id;
+
+  if (!threadId || !runId) {
+    throw new Error(`No se obtuvo threadId o runId. Respuesta: ${JSON.stringify(runResp, null, 2)}`);
+  }
+
+  console.log(`ThreadId: ${threadId}, RunId: ${runId}`);
+
+  // Esperar a que el asistente complete su ejecución
   while (true) {
+    console.log(`Estado del run: ${runResp.status}`);
+
     if (runResp.required_action && runResp.required_action.type === 'submit_tool_outputs') {
       const calls = runResp.required_action.submit_tool_outputs.tool_calls;
       if (Array.isArray(calls) && calls.length > 0) {
         const toolCall = calls[0];
-        console.log('El asistente solicita tool call:', toolCall);
         let respuesta = '';
 
         try {
-          // Llamamos a GeoServer
-          // (Puedes filtrar por farmacias de guardia, etc., si tienes un endpoint distinto)
-          const geoServerUrl = 'https://ide.caceres.es/geoserver/toponimia/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=toponimia%3Afarmacias&maxFeatures=50&outputFormat=application%2Fjson';
-          
+          console.log('Consultando GeoServer para obtener farmacias...');
+          const geoServerUrl =
+            'https://ide.caceres.es/geoserver/toponimia/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=toponimia%3Afarmacias&maxFeatures=50&outputFormat=application%2Fjson';
           const geoResp = await axios.get(geoServerUrl);
-          const geoData = geoResp.data; // GeoJSON
+          const geoData = geoResp.data;
 
-          // Parseamos
           respuesta = parsearFarmacias(geoData);
-
         } catch (err) {
           console.error('Error consultando GeoServer:', err.message);
           respuesta = 'No se pudo obtener la lista de farmacias en este momento.';
         }
 
-        // respondemos con submitToolOutputs
         const toolOutputs = [
           {
             tool_call_id: toolCall.id,
-            output: respuesta
-          }
+            output: respuesta,
+          },
         ];
+
+        console.log('Enviando tool_outputs al asistente...');
         runResp = await apiService.submitToolOutputs(threadId, runId, toolOutputs);
-        runId = runResp.id; 
+        runId = runResp.id;
       }
     }
 
-    // Revisamos el estado
     if (runResp.status === 'completed') {
-      console.log('Run completado con éxito.');
-      break;
-    }
-    if (['failed', 'cancelled'].includes(runResp.status)) {
-      console.warn(`Run finalizó con estado: ${runResp.status}`);
+      console.log('El asistente ha completado la ejecución.');
       break;
     }
 
-    // Si sigue en "queued" o "in_progress", volvemos a consultar
-    console.log(`Run en estado "${runResp.status}". Llamamos a retrieveRun...`);
+    if (['failed', 'cancelled'].includes(runResp.status)) {
+      console.error('La ejecución del asistente falló o fue cancelada.');
+      break;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    console.log('Obteniendo estado actualizado del asistente...');
     runResp = await apiService.retrieveRun(threadId, runId);
   }
 
-  // 3) Cuando finaliza, listMessages para obtener el mensaje final
+  // Obtener los mensajes del asistente
+  console.log('Obteniendo los mensajes del asistente...');
   const messagesData = await apiService.listMessages(threadId);
-  const messages = messagesData.data || messagesData; // depende de la estructura real
+  const messages = messagesData.data || messagesData;
 
-  // Buscamos el último mensaje con role = "assistant"
-  for (let i = messages.length - 1; i >= 0; i--) {
-    if (messages[i].role === 'assistant') {
-      const content = messages[i].content; // puede ser array
-      if (Array.isArray(content)) {
-        const textPart = content.find(c => c.type === 'text');
-        if (textPart && textPart.text?.value) {
-          return textPart.text.value;
-        }
-        return JSON.stringify(content, null, 2);
-      } else {
-        return content; // si fuese un string directo
+  console.log('Mensajes obtenidos:', messages);
+
+  // **Nueva Lógica para obtener la última respuesta válida del asistente**
+  const assistantMessages = messages
+    .filter((msg) => msg.role === 'assistant')
+    .sort((a, b) => b.created_at - a.created_at); // Ordenar del más reciente al más antiguo
+
+  if (assistantMessages.length > 0) {
+    const latestMessage = assistantMessages[0];
+    const content = latestMessage.content;
+
+    if (Array.isArray(content)) {
+      const textPart = content.find((c) => c.type === 'text');
+      if (textPart && textPart.text?.value) {
+        console.log('Última respuesta del asistente:', textPart.text.value);
+        return { content: textPart.text.value, threadId };
       }
+
+      console.log('Contenido en otro formato:', JSON.stringify(content, null, 2));
+      return { content: JSON.stringify(content, null, 2), threadId };
+    } else {
+      console.log('Última respuesta del asistente:', content);
+      return { content, threadId };
     }
   }
 
-  return 'No se encontró respuesta del asistente.';
+  console.log('No se encontró una respuesta válida del asistente.');
+  return { content: 'No se encontró respuesta del asistente.', threadId };
 }
 
 
-
 /**
- * parsearFarmacias(data):
- * - data es un GeoJSON con "features"
- * - Devuelve un string con la info que queremos
+ * parsearFarmacias: función para procesar datos de farmacias
  */
 function parsearFarmacias(data) {
   if (!data || !data.features || data.features.length === 0) {
     return '<p>No se encontraron farmacias.</p>';
   }
 
-  // Construimos una lista ordenada en HTML
   let html = '<ol>';
-  data.features.forEach((feature, index) => {
+  data.features.forEach((feature) => {
     const p = feature.properties;
     const nombreFarmacia = p.nombretitu || 'Sin nombre';
     const via = `${p.tipovia || ''} ${p.nombrevia || ''}, ${p.numpol || ''}`;
@@ -211,37 +240,14 @@ app.use('/', express.static('public'));
  */
 app.post('/api/createThreadAndRun', async (req, res) => {
   try {
-    const { message } = req.body;
-    const finalText = await runAssistantFlow(apiService, message);
-    return res.json({ assistant: finalText }); // Asegúrate de que finalText contiene HTML
+    const { message, threadId } = req.body;
+    const response = await runAssistantFlow(apiService, message, threadId);
+
+    // Devuelve la respuesta del asistente y el threadId al cliente
+    return res.json({ assistant: response.content, threadId: response.threadId });
   } catch (error) {
     console.error('Error en createThreadAndRun:', error);
     return res.status(500).json({ assistant: 'Error interno del servidor' });
-  }
-});
-
-/**
- * Rutas opcionales de depuración
- */
-app.get('/api/retrieveRun', async (req, res) => {
-  try {
-    const { threadId, runId } = req.query;
-    const data = await apiService.retrieveRun(threadId, runId);
-    res.json(data);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error en retrieveRun' });
-  }
-});
-
-app.get('/api/listMessages', async (req, res) => {
-  try {
-    const { threadId } = req.query;
-    const data = await apiService.listMessages(threadId);
-    res.json(data);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error en listMessages' });
   }
 });
 

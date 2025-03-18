@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Asistente Virtual Farmacias Cáceres</title>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        <link rel="stylesheet" href="./css/asistente.css">
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <style>
+          section {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            text-align: center;
+          }
+      
+          ul {
+            list-style-type: none;
+            padding: 0;
+          }
+      
+          ul li {
+            margin-bottom: 10px;
+          }
+      
+          .header-buttons {
+  position: absolute;
+  left: 20px;
+  display: flex;
+  gap: 15px;
+}
+      
+.button-icon {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: var(--navy-blue);
+  transition: color 0.3s;
+}
+      
+          .button-icon:hover {
+            color: #007BFF;
+          }
+        </style>
+      </head>
+      <body>
+        <header>
+          <div class="header-container">
+              <div class="header-buttons">
+                  <a href="index.html" class="button-icon" title="Volver al Inicio">
+                      <i class="fas fa-arrow-left"></i>
+                  </a>
+                  <button class="button-icon" onclick="location.reload()" title="Refrescar">
+                      <i class="fas fa-sync-alt"></i>
+                  </button>
+                  <a href="https://www.ayto-caceres.es/ayuntamiento/" target="_blank" class="button-icon" title="Ayuntamiento de Cáceres">
+                      <i class="fas fa-university"></i>
+                  </a>
+              </div>
+      
+              <div class="header-box">
+                  <div class="header-logo">
+                      <img src="./images/logo3.png" alt="Logo Cáceres">
+                  </div>
+                  <h1>GeoCáceres</h1>
+              </div>
+          </div>
+        </header>
+      <br><br><br>
+
+  <section>
+    <h2>Bienvenido al Asistente Virtual de Cáceres</h2>
+    <p>Este asistente virtual está diseñado para facilitarte información útil sobre diferentes servicios y recursos en la ciudad de Cáceres.</p>
+<br><br>
+
+    <h3>¿Qué puedes preguntar?</h3>
+    <ul>
+        <li><strong>Farmacias:</strong> Encuentra las farmacias más cercanas y consulta cuáles están de guardia.</li>
+        <li><strong>Desfibriladores (DEA):</strong> Localiza los desfibriladores disponibles en tu zona en caso de emergencia.</li>
+        <li><strong>Plazas de Movilidad Reducida:</strong> Descubre dónde se encuentran las plazas de aparcamiento reservadas para personas con movilidad reducida.</li>
+        <li><strong>Contenedores:</strong> Localiza los contenedores más cercanos para el reciclaje y la gestión de residuos.</li>
+    </ul>
+<br><br>
+
+    <h3>¿Cómo puedes interactuar?</h3>
+    <p>Solo tienes que escribir tu pregunta, por ejemplo:</p>
+    <ul>
+        <li>"¿Dónde está la farmacia de guardia más cercana?"</li>
+        <li>"¿Dónde puedo encontrar un desfibrilador en el centro de Cáceres?"</li>
+        <li>"¿Dónde hay plazas de movilidad reducida cerca de la Plaza Mayor?"</li>
+        <li>"¿Dónde está el contenedor de reciclaje más cercano a mi ubicación?"</li>
+    </ul>
+<br><br>
+    <h3>¡Y esto es solo el comienzo!</h3>
+    <p>Estamos trabajando para ampliar y mejorar continuamente este asistente. Muy pronto podrás recibir información sobre más servicios y recursos de la ciudad, facilitándote aún más tu día a día en Cáceres.</p>
+<br><br>
+    <h3>¿Tienes alguna sugerencia?</h3>
+    <p>Si echas en falta alguna funcionalidad o tienes ideas para mejorar, ¡no dudes en decírnoslo! Queremos que este asistente sea cada vez más útil para ti.</p>
+
+    <p>Explora, pregunta y descubre Cáceres de una forma más fácil y rápida.</p>
+  </section>
+<br><br><br>
+
+  <footer>
+    <div class="footer-container">
+      <div class="footer-info">
+        <p><strong>Excmo. Ayuntamiento de Cáceres</strong></p>
+        <p>Plaza Mayor, 1, 10003 (Cáceres)</p>
+        <p>✆ 927 255 800</p>
+        <p>🌐 <a href="https://www.ayto-caceres.es" target="_blank">www.ayto-caceres.es</a></p>
+      </div>
+      <div class="footer-logo">
+        <img src="./images/logo2.png" alt="Logo Cáceres">
+      </div>
+      <div class="footer-social">
+        <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" target="_blank"><i class="fab fa-youtube"></i></a>
+        <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+      </div>
+    </div>
+    <br>
+
+    <p class="rr" style="text-align: center;">© 2025 Emilio Tamayo Morillo. Todos los derechos reservados.</p>
+  </footer>
+
+  <script src="/js/script.js"></script>
+</body>
+</html>

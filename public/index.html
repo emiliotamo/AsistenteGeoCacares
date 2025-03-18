@@ -2,166 +2,71 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Asistente Virtual Farmacias Caceres</title>
-  <style>
-    /* Variables de color para mantener consistencia */
-    :root {
-      --navy-blue: #001f3f;       
-      --navy-blue-hover: #002a57;  
-      --background-color: #fafafa;
-      --border-color: #ddd;
-      --text-color: #333;
-      --button-text-color: #fff;
-    }
-
-   
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      background-color: var(--background-color);
-      color: var(--text-color);
-      margin: 0 0 60px 0; 
-    }
-
-    
-    header {
-      background-color: var(--navy-blue);
-      color: #fff;
-      text-align: center;
-      padding: 1rem 0;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; /* Cambia por la fuente que prefieras */
-    }
-    header h1 {
-      font-size: 1.2rem;
-      font-weight: normal;
-    }
-
-    /* Contenedor del chat */
-    #chatContainer {
-      max-width: 600px;
-      width: 100%;
-      margin: 20px auto;
-      padding: 0 20px;
-    }
-
-    /* Log del chat */
-    #chatLog {
-      background-color: #fff;
-      border: 1px solid var(--border-color);
-      border-radius: 5px;
-      padding: 1rem;
-      height: 400px; /* Ajustar según se necesite */
-      overflow-y: auto;
-      margin-bottom: 1rem;
-    }
-
-    /* Mensajes */
-    .message {
-      margin-bottom: 0.6rem;
-      padding: 0.8rem;
-      border-radius: 4px;
-    }
-    .user {
-      background-color: #ebebeb;
-      text-align: right;
-    }
-    .assistant {
-      background-color: #f5f5f5;
-      text-align: left;
-    }
-
-    /* Input y botones */
-    #userInput {
-      width: 70%;
-      padding: 0.5rem;
-      font-size: 1rem;
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      outline: none;
-      margin-right: 0.5rem;
-    }
-    #sendButton,
-    #sendThreadAndRunButton {
-      background-color: var(--navy-blue);
-      color: var(--button-text-color);
-      border: none;
-      border-radius: 4px;
-      padding: 0.5rem 1rem;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-    #sendButton:hover,
-    #sendThreadAndRunButton:hover {
-      background-color: var(--navy-blue-hover);
-    }
-
-    /* FOOTER fijo en la parte inferior con estilo y tipografía */
-    footer {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background-color: var(--navy-blue);
-      color: #fff;
-      border-top: 1px solid var(--border-color);
-      text-align: center;
-      padding: 0.8rem 0;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    }
-    footer p {
-      font-size: 0.9rem;
-    }
-
-    /* Estilos para las listas en los mensajes del asistente */
-.assistant ol {
-  padding-left: 20px;
-}
-
-.assistant li {
-  margin-bottom: 10px;
-}
-
-/* Mejorar la apariencia de los enlaces si los hay */
-.assistant a {
-  color: var(--navy-blue);
-  text-decoration: none;
-}
-
-.assistant a:hover {
-  text-decoration: underline;
-}
-  </style>
-  <!-- Incluir Marked.js para convertir Markdown a HTML -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asistente Virtual Farmacias Cáceres</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="./css/asistente.css">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-  <!-- Incluir DOMPurify para sanitizar el HTML -->
   <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
-
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
   <header>
-    <h1>Asistente Virtual Farmacias Caceres</h1>
-  </header>
+    <div class="header-container">
+        <div class="header-buttons">
+            <a href="ayuda.html" class="button-icon" title="Ayuda">
+                <i class="fas fa-question-circle"></i>
+            </a>
+            <button class="button-icon" onclick="location.reload()" title="Refrescar">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+            <a href="https://www.ayto-caceres.es/ayuntamiento/" target="_blank" class="button-icon" title="Ayuntamiento de Cáceres">
+                <i class="fas fa-university"></i>
+            </a>
+        </div>
 
-  <div id="chatContainer">
-    <div id="chatLog"></div>
-    <div>
-      <!-- Input de texto para la ciudad -->
-      <input type="text" id="userInput" placeholder="Escribe la ciudad..." />
-      <!-- Botón para enviar -->
-      <button id="sendButton">Enviar</button>
+        <div class="header-box">
+            <div class="header-logo">
+                <img src="./images/logo3.png" alt="Logo Cáceres">
+            </div>
+            <h1>GeoCáceres</h1>
+        </div>
     </div>
-  </div>
+</header>
 
-  <script src="./script.js"></script>
+  <main>
+    <div id="chatContainer">
+      <div id="chatLog"></div>
+      <div class="input-group">
+        <input type="text" id="userInput" placeholder="Escribe tu mensaje..." autofocus />
+        <button id="sendButton">Enviar</button>
+      </div>
+    </div>
+  </main>
+
   <footer>
-    <p>© 2025 - Todos los derechos reservados</p>
+    <div class="footer-container">
+      <div class="footer-info">
+        <p><strong>Excmo. Ayuntamiento de Cáceres</strong></p>
+        <p>⚑ Plaza Mayor, 1, 10003 (Cáceres)</p>
+        <p>✆ 927 255 800</p>
+        <p>🌐 <a href="https://www.ayto-caceres.es" target="_blank">www.ayto-caceres.es</a></p>
+      </div>
+      <div class="footer-logo">
+        <img src="./images/logo2.png" alt="Logo Cáceres">
+      </div>
+      <div class="footer-social">
+        <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" target="_blank"><i class="fab fa-youtube"></i></a>
+        <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+      </div>
+    </div>
+    <br>
+
+    <p class="rr" style="text-align: center;">© 2025 Emilio Tamayo Morillo. Todos los derechos reservados.</p>
   </footer>
+
+  <script src="/js/script.js"></script>
 </body>
 </html>
